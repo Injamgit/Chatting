@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat App</title>
+</head>
+
+<body>
+
+<h2>Chat Application</h2>
+
+<input
+        type="text"
+        id="username"
+        placeholder="Your Name">
+
+<br><br>
+
+<input
+        type="text"
+        id="message"
+        placeholder="Type Message">
+
+<button onclick="sendMessage()">
+    Send
+</button>
+
+<hr>
+
+<ul id="chat"></ul>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+
+<script>
+
+    let stompClient = null;
+
+    const socket =
+          new SockJS('/chat');
+
+    stompClient =
+          Stomp.over(socket);
+
+    stompClient.connect(
+    {}, function() {
+
+        stompClient.subscribe(
+            '/topic/messages',
+
+            function(message) {
+
+                const msg =
+                  JSON.parse(
+                    message.body);
+
+                const li =
+                    document
+                    .createElement('li');
+
+                li.innerText =
+                    msg.sender
+                    + " : "
+                    + msg.content;
+
+                document
+                 .getElementById(
+                 'chat')
+                 .appendChild(li);
+            });
+    });
+
+    function sendMessage() {
+
+        const sender =
+           document
+           .getElementById(
+           "username").value;
+
+        const content =
+           document
+           .getElementById(
+           "message").value;
+
+        stompClient.send(
+            "/app/send",
+            {},
+
+            JSON.stringify({
+
+                sender: sender,
+                content: content
+            }));
+    }
+
+    window.onload = async function() {
+
+    const response =
+        await fetch('/messages');
+
+    const messages =
+        await response.json();
+
+    messages.forEach(msg => {
+
+        const li =
+          document.createElement('li');
+
+        li.innerText =
+          msg.sender + " : "
+          + msg.content;
+
+        document
+         .getElementById('chat')
+         .appendChild(li);
+    });
+};
+</script>
+
+</body>
+</html>
