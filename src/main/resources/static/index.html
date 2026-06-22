@@ -166,9 +166,13 @@
                 const time =
                     msg.timestamp
                         ? new Date(msg.timestamp)
-                            .toLocaleTimeString()
+                            .toLocaleTimeString('en-IN', {
+            timeZone: 'Asia/Kolkata'
+        })
                         : new Date()
-                            .toLocaleTimeString();
+                            .toLocaleTimeString('en-IN', {
+            timeZone: 'Asia/Kolkata'
+        });
 
 
 li.innerHTML =
